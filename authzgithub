@@ -1,0 +1,18 @@
+#!/bin/bash
+
+authzfile=$HOME/.ssh/authorized_keys
+touch $authzfile
+
+for username in "$@"
+do
+    key="$(curl -fs https://github.com/${username}.keys)"
+    if [[ -z "$key" ]]; then
+        echo "Failed getting key for $username"
+        continue
+    fi
+    if grep -q "${key}" $authzfile; then
+        echo "$username already in $authzfile"
+        continue
+    fi
+    echo "${key}" >> $authzfile
+done
